@@ -13,14 +13,20 @@ namespace OPCClient
         /// </summary>
         OPCServer KepServer;
         OPCGroups KepGroups;
-        OPCGroup KepGroup;
+        OPCGroup KepGroupDataChange;
+        OPCGroup KepGroupWriteData;
+        OPCItems KepItemsWrite;
+        OPCItem KepItemWrite;
         OPCBrowser oPCBrowser;
         OPCItems KepItems;
         OPCItem KepItem;
         int updateTime = 250;
 
-        int itmHandleClient = 0;
-        int itmHandleServer = 0;
+        int itmHandleClientDataChange = 0;
+        int itmHandleServerDataChange = 0;
+
+        int itmHandleClientWriteData = 0;
+        int itmHandleServerWriteData = 0;
 
         string[] tagList = new string[50];
         int tagCounts = 0;
@@ -94,18 +100,23 @@ namespace OPCClient
                 KepServer.OPCGroups.DefaultGroupIsActive = true;
                 KepServer.OPCGroups.DefaultGroupDeadband = 0;
                 KepServer.OPCGroups.DefaultGroupUpdateRate = updateTime;
-                KepGroup = KepGroups.Add("OPCDOTNETGROUP");
+                KepGroupDataChange = KepGroups.Add("DATACHANGE");
+                KepGroupWriteData = KepGroups.Add("WRITEDATA");
 
-                KepGroup.IsActive = true;
-                KepGroup.IsSubscribed = true;
+                KepGroupDataChange.IsActive = true;
+                KepGroupDataChange.IsSubscribed = true;
+
+                KepGroupWriteData.IsActive = true;
+                KepGroupWriteData.IsSubscribed = true;
 
                 oPCBrowser = KepServer.CreateBrowser();
 
                 tagCounts = RecurBrowse(oPCBrowser, commonTagName);
                 tagNum = tagCounts;
 
-                KepGroup.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroup_DataChange);
-                KepItems = KepGroup.OPCItems;
+                KepGroupDataChange.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);
+                KepItems = KepGroupDataChange.OPCItems;
+                KepItemsWrite = KepGroupWriteData.OPCItems;
                 return true;
             }
             catch (Exception err)
@@ -116,9 +127,9 @@ namespace OPCClient
 
         public void DisconnectToServer()
         {
-            if (KepGroup != null)
+            if (KepGroupDataChange != null)
             {
-                KepGroup.DataChange -= new DIOPCGroupEvent_DataChangeEventHandler(KepGroup_DataChange);
+                KepGroupDataChange.DataChange -= new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);
             }
 
             if (KepServer != null)
@@ -135,7 +146,7 @@ namespace OPCClient
         /// <param name="NumItems">项个数</param>
         /// <param name="ClientHandles">项客户端句柄</param>
         /// <param name="ItemValues">TAG值</param>
-        private void KepGroup_DataChange(int TransactionID, int NumItems, ref Array ClientHandles, ref Array ItemValues, ref Array Qualities, ref Array TimeStamps)
+        private void KepGroupDataChange_DataChange(int TransactionID, int NumItems, ref Array ClientHandles, ref Array ItemValues, ref Array Qualities, ref Array TimeStamps)
         {
             for (int i = 1; i <= NumItems; i++)
             {
@@ -143,28 +154,24 @@ namespace OPCClient
             }
         }
 
+        private string[] itemList = new string[50];
+        private int itemListIdx = 0;
         public void BeginUpdate(string tag)
         {
             try
             {
-                if (itmHandleClient != 0)
+                if (Array.IndexOf(itemList, tag) == -1)
                 {
-                    Array Errors;
-                    OPCItem bItem = KepItems.GetOPCItem(itmHandleServer);
-                    //注：OPC中以1为数组的基数
-                    int[] temp = new int[2] { 0, bItem.ServerHandle };
-                    Array serverHandle = (Array)temp;
-                    //移除上一次选择的项
-                    KepItems.Remove(KepItems.Count, ref serverHandle, out Errors);
+                    itmHandleClientDataChange = Array.IndexOf(tagList, tag) + 1;
+                    KepItem = KepItems.AddItem(tag, itmHandleClientDataChange);
+                    itmHandleServerDataChange = KepItem.ServerHandle;
+                    itemList[itemListIdx++] = tag;
                 }
-                itmHandleClient =Array.IndexOf(tagList,tag) + 1;
-                KepItem = KepItems.AddItem(tag, itmHandleClient);
-                itmHandleServer = KepItem.ServerHandle;
             }
             catch (Exception err)
             {
                 //没有任何权限的项，都是OPC服务器保留的系统项，此处可不做处理。
-                itmHandleClient = 0;
+                itmHandleClientDataChange = 0;
                 //MessageBox.Show("此项为系统保留项:" + err.Message, "提示信息");
             }
         }
@@ -176,26 +183,26 @@ namespace OPCClient
         public bool AsyncWriteTagValue(string tag, string writeStr)
         {
             Array Errors;
-            if (itmHandleClient != 0)
+            if (itmHandleClientWriteData != 0)
             {
-                OPCItem bItem = KepItems.GetOPCItem(itmHandleServer);
+                OPCItem bItem = KepItemsWrite.GetOPCItem(itmHandleServerWriteData);
                 //注：OPC中以1为数组的基数
                 int[] temp = new int[2] { 0, bItem.ServerHandle };
                 Array serverHandle = (Array)temp;
                 //移除上一次选择的项
-                KepItems.Remove(KepItems.Count, ref serverHandle, out Errors);
+                KepItemsWrite.Remove(KepItemsWrite.Count, ref serverHandle, out Errors);
             }
-            itmHandleClient = Array.IndexOf(tagList, tag) + 1;
-            KepItem = KepItems.AddItem(tag, itmHandleClient);
-            itmHandleServer = KepItem.ServerHandle;
+            itmHandleClientWriteData = Array.IndexOf(tagList, tag) + 1;
+            KepItemWrite = KepItemsWrite.AddItem(tag, itmHandleClientWriteData);
+            itmHandleServerWriteData = KepItemWrite.ServerHandle;
 
-            OPCItem bItem_ = KepItems.GetOPCItem(itmHandleServer);
+            OPCItem bItem_ = KepItemsWrite.GetOPCItem(itmHandleServerWriteData);
             int[] temp_ = new int[2] { 0, bItem_.ServerHandle };
             Array serverHandles = (Array)temp_;
             object[] valueTemp = new object[2] { "",  writeStr};
             Array values = (Array)valueTemp;
             int cancelID;
-            KepGroup.AsyncWrite(1, ref serverHandles, ref values, out Errors, 2009, out cancelID);
+            KepGroupWriteData.AsyncWrite(1, ref serverHandles, ref values, out Errors, 2009, out cancelID);
             GC.Collect();
             return true;
         }
