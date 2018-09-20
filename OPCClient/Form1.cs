@@ -65,7 +65,8 @@ namespace OPCClient
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             //tbReadValue.Text = "正在读取";
-            myOPCClient.BeginUpdate(listBox1.SelectedItem.ToString());
+            //myOPCClient.BeginUpdate(listBox1.SelectedItem.ToString());
+            myOPCClient.AsyncReadTagValue(listBox1.SelectedItem.ToString());
         }
 
         private void btWrite_Click(object sender, EventArgs e)

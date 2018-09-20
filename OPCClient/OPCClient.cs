@@ -15,8 +15,11 @@ namespace OPCClient
         OPCGroups KepGroups;
         OPCGroup KepGroupDataChange;
         OPCGroup KepGroupWriteData;
+        OPCGroup KepGroupReadData;
         OPCItems KepItemsWrite;
         OPCItem KepItemWrite;
+        OPCItems KepItemsRead;
+        OPCItem KepItemRead;
         OPCBrowser oPCBrowser;
         OPCItems KepItems;
         OPCItem KepItem;
@@ -27,6 +30,9 @@ namespace OPCClient
 
         int itmHandleClientWriteData = 0;
         int itmHandleServerWriteData = 0;
+
+        int itmHandleClientReadData = 0;
+        int itmHandleServerReadData = 0;
 
         string[] tagList = new string[50];
         int tagCounts = 0;
@@ -102,12 +108,16 @@ namespace OPCClient
                 KepServer.OPCGroups.DefaultGroupUpdateRate = updateTime;
                 KepGroupDataChange = KepGroups.Add("DATACHANGE");
                 KepGroupWriteData = KepGroups.Add("WRITEDATA");
+                KepGroupReadData = KepGroups.Add("READDATA");
 
                 KepGroupDataChange.IsActive = true;
                 KepGroupDataChange.IsSubscribed = true;
 
                 KepGroupWriteData.IsActive = true;
                 KepGroupWriteData.IsSubscribed = true;
+
+                KepGroupReadData.IsActive = true;
+                KepGroupReadData.IsSubscribed = true;
 
                 oPCBrowser = KepServer.CreateBrowser();
 
@@ -117,6 +127,8 @@ namespace OPCClient
                 KepGroupDataChange.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);
                 KepItems = KepGroupDataChange.OPCItems;
                 KepItemsWrite = KepGroupWriteData.OPCItems;
+                KepItemsRead = KepGroupReadData.OPCItems;
+                KepGroupReadData.AsyncReadComplete += new DIOPCGroupEvent_AsyncReadCompleteEventHandler(KepGroupReadData_AsyncReadComplete);
                 return true;
             }
             catch (Exception err)
@@ -176,8 +188,37 @@ namespace OPCClient
             }
         }
 
+        private void KepGroupReadData_AsyncReadComplete(int TransactionID, int NumItems, ref Array ClientHandles, ref Array ItemValues, ref Array Qualities, ref Array TimeStamps, ref Array Errors)
+        {
+            for (int i = 1; i <= NumItems; i++)
+            {
+                _TagDataChange(ItemValues.GetValue(i).ToString(), tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1]);
+            }
+        }
+
         public bool AsyncReadTagValue(string tag)
         {
+            Array Errors;
+            if (itmHandleClientReadData != 0)
+            {
+                OPCItem bItem = KepItemsRead.GetOPCItem(itmHandleServerReadData);
+                //注：OPC中以1为数组的基数
+                int[] temp = new int[2] { 0, bItem.ServerHandle };
+                Array serverHandle = (Array)temp;
+                //移除上一次选择的项
+                KepItemsRead.Remove(KepItemsRead.Count, ref serverHandle, out Errors);
+            }
+            itmHandleClientReadData = Array.IndexOf(tagList, tag) + 1;
+            KepItemRead = KepItemsRead.AddItem(tag, itmHandleClientReadData);
+            itmHandleServerReadData = KepItemRead.ServerHandle;
+
+            OPCItem bItem_ = KepItemsRead.GetOPCItem(itmHandleServerReadData);
+            int[] temp_ = new int[2] { 0, bItem_.ServerHandle };
+            Array serverHandles = (Array)temp_;
+            int cancelID;
+            //KepGroupReadData.AsyncWrite(1, ref serverHandles, ref values, out Errors, 2009, out cancelID);
+            KepGroupReadData.AsyncRead(1, ref serverHandles, out Errors, 2018, out cancelID);
+            GC.Collect();
             return true;
         }
         public bool AsyncWriteTagValue(string tag, string writeStr)
