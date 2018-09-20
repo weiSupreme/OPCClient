@@ -54,7 +54,7 @@ namespace OPCClient
                     listBox1.Items.Add(tag);
                 }
                 //listBox1.SelectedIndex = 0;
-                myOPCClient.SetTagDataChangeFunc(TagDataChange);
+                myOPCClient.SetTagDataUpdateFunc(TagDataChange);
             }
             else
             {
@@ -70,7 +70,7 @@ namespace OPCClient
 
         private void btWrite_Click(object sender, EventArgs e)
         {
-            myOPCClient.AsyncWriteTagValue(tbWriteValue.Text);
+            myOPCClient.AsyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
         }
 
         private void btExit_Click(object sender, EventArgs e)
