@@ -1,9 +1,0 @@
-D:\github\OPCClient\bin\Debug\OPCClient.exe
-D:\github\OPCClient\bin\Debug\OPCClient.pdb
-D:\github\OPCClient\obj\x86\Debug\Interop.OPCAutomation.dll
-D:\github\OPCClient\obj\x86\Debug\OPCClient.csproj.ResolveComReference.cache
-D:\github\OPCClient\obj\x86\Debug\OPCClient.Form1.resources
-D:\github\OPCClient\obj\x86\Debug\OPCClient.Properties.Resources.resources
-D:\github\OPCClient\obj\x86\Debug\OPCClient.csproj.GenerateResource.Cache
-D:\github\OPCClient\obj\x86\Debug\OPCClient.exe
-D:\github\OPCClient\obj\x86\Debug\OPCClient.pdb

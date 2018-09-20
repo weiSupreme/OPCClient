@@ -137,35 +137,35 @@ namespace OPCClient
         /// <param name="ItemValues">TAG值</param>
         private void KepGroup_DataChange(int TransactionID, int NumItems, ref Array ClientHandles, ref Array ItemValues, ref Array Qualities, ref Array TimeStamps)
         {
-            string str="";
             for (int i = 1; i <= NumItems; i++)
             {
                 _TagDataChange(ItemValues.GetValue(i).ToString(), tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1]);
-                str = ClientHandles.GetValue(i).ToString();
             }
         }
 
-        
+        private string[] itemList = new string[50];
+        private int itemListIdx = 0;
         public void BeginUpdate(string tag)
         {
             try
             {
-                if (itmHandleClient != 0)
-                {
-                    //this.TagValue.Text = "";
-
-                    Array Errors;
-                    OPCItem bItem = KepItems.GetOPCItem(itmHandleServer);
-                    //注：OPC中以1为数组的基数
-                    int[] temp = new int[2] { 0, bItem.ServerHandle };
-                    Array serverHandle = (Array)temp;
-                    //移除上一次选择的项
-                    KepItems.Remove(KepItems.Count, ref serverHandle, out Errors);
-                }
                 itmHandleClient =Array.IndexOf(tagList,tag) + 1;
-                KepItem = KepItems.AddItem(tag, itmHandleClient);
-                itmHandleServer = KepItem.ServerHandle;
-                //TagValue.Text = KepItem.ToString();
+                int idx =Array.IndexOf(itemList, tag);
+                if (idx == -1)
+                {
+                    KepItem = KepItems.AddItem(tag, itmHandleClient);
+                    itmHandleServer = KepItem.ServerHandle;
+                    itemList[itemListIdx++] = tag;
+                }
+                else
+                {
+                    OPCItems KepItemsTmp;
+                    KepItemsTmp = KepGroup.OPCItems;
+                    KepItem = KepItemsTmp.AddItem(tag, itmHandleClient);
+                    itmHandleServer = KepItem.ServerHandle;
+                }
+
+                //int cnt = KepItems.Count;
             }
             catch (Exception err)
             {

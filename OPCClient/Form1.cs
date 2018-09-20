@@ -64,15 +64,8 @@ namespace OPCClient
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (myOPCClient.AsyncReadTagValue(listBox1.SelectedItem.ToString()))
-            {
-                tbReadValue.Text = "正在读取";
-                myOPCClient.BeginUpdate(listBox1.SelectedItem.ToString());
-            }
-            else
-            {
-                toolStripStatusLabel1.Text = "读取Tag失败";
-            }
+            //tbReadValue.Text = "正在读取";
+            myOPCClient.BeginUpdate(listBox1.SelectedItem.ToString());
         }
 
         private void btWrite_Click(object sender, EventArgs e)
