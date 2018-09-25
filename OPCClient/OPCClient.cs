@@ -6,7 +6,7 @@ using OPCAutomation;
 
 namespace OPCClient
 {
-    class OPCClient
+    class OPCClientClass
     {
         /// <summary>
         /// 定义变量
@@ -23,7 +23,7 @@ namespace OPCClient
         OPCBrowser oPCBrowser;
         OPCItems KepItems;
         OPCItem KepItem;
-        int updateTime = 250;
+        int updateTime = 200;
 
         int itmHandleClientDataChange = 0;
         int itmHandleServerDataChange = 0;
@@ -37,10 +37,10 @@ namespace OPCClient
         string[] tagList = new string[50];
         int tagCounts = 0;
 
-        public OPCClient() { }
+        public OPCClientClass() { }
 
         public delegate void TagDataChange(string tag, string str);
-        public TagDataChange _TagDataChange;
+        private TagDataChange _TagDataChange;
         public void SetTagDataUpdateFunc(TagDataChange tdc)
         {
             this._TagDataChange = tdc;
@@ -65,7 +65,7 @@ namespace OPCClient
         /// <summary>
         /// 列出OPC服务器中所有节点
         /// </summary>
-        private int RecurBrowse(OPCBrowser oPCBrowser, string cTagName)
+        private int RecurBrowse(OPCBrowser oPCBrowser, string cTagName, bool initFlag)
         {
             //展开分支
             oPCBrowser.ShowBranches();
@@ -78,15 +78,25 @@ namespace OPCClient
                 if ((turn.ToString().IndexOf(cTagName)) > -1)
                 {
                     tagList[idx]=turn.ToString();
-                    BeginUpdate(turn.ToString());
+                    if(initFlag)
+                        BeginUpdate(turn.ToString());
                     ++idx;
                 }
-
             }
             return idx;
         }
 
-        public void getTags(string[] tags)
+        public void InitSomeTags(string[] tags, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                BeginUpdate(tags[i]);
+            }
+            KepGroupDataChange.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);
+
+        }
+
+        public void GetTags(string[] tags)
         {
             for (int i = 0; i < tagCounts; i++)
             {
@@ -99,7 +109,6 @@ namespace OPCClient
         /// </summary>
         public bool ConnectToServer(string serverName, ref int tagNum, string commonTagName="Tag", bool initAllTagsFlag=true)
         {
-
             try
             {
                 KepServer.Connect(serverName);
@@ -114,20 +123,20 @@ namespace OPCClient
                 KepGroupDataChange.IsActive = true;
                 KepGroupDataChange.IsSubscribed = true;
 
-                KepGroupWriteData.IsActive = true;
-                KepGroupWriteData.IsSubscribed = true;
-
                 KepGroupReadData.IsActive = true;
                 KepGroupReadData.IsSubscribed = true;
 
-                oPCBrowser = KepServer.CreateBrowser();
+                KepGroupWriteData.IsActive = true;
+                KepGroupWriteData.IsSubscribed = true;
 
                 KepItems = KepGroupDataChange.OPCItems;
                 KepItemsWrite = KepGroupWriteData.OPCItems;
                 KepItemsRead = KepGroupReadData.OPCItems;
 
-                tagCounts = RecurBrowse(oPCBrowser, commonTagName);
+                oPCBrowser = KepServer.CreateBrowser();
+                tagCounts = RecurBrowse(oPCBrowser, commonTagName, initAllTagsFlag);
                 tagNum = tagCounts;
+
                 if(initAllTagsFlag)
                     KepGroupDataChange.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);
                 KepGroupReadData.AsyncReadComplete += new DIOPCGroupEvent_AsyncReadCompleteEventHandler(KepGroupReadData_AsyncReadComplete);
@@ -160,21 +169,23 @@ namespace OPCClient
         /// <param name="NumItems">项个数</param>
         /// <param name="ClientHandles">项客户端句柄</param>
         /// <param name="ItemValues">TAG值</param>
-        private bool firstFlag = true;
+        bool initializeFlag = true;
         private void KepGroupDataChange_DataChange(int TransactionID, int NumItems, ref Array ClientHandles, ref Array ItemValues, ref Array Qualities, ref Array TimeStamps)
         {
-            if (firstFlag)
-                firstFlag = false;
-            else
+            if (!initializeFlag)
                 for (int i = 1; i <= NumItems; i++)
                 {
                     _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i).ToString());
                 }
+            else
+            {
+                initializeFlag = false;
+            }
         }
 
         private string[] itemList = new string[50];
         private int itemListIdx = 0;
-        public void BeginUpdate(string tag)
+        private void BeginUpdate(string tag)
         {
             try
             {
@@ -277,8 +288,16 @@ namespace OPCClient
 
             short src = (short)OPCDataSource.OPCDevice;
             object qualities, timeStamps;
-            KepGroupReadData.SyncRead(src, 1, ref serverHandles, out outValues, out Errors, out qualities, out timeStamps);
-            return true;
+            try
+            {
+                KepGroupReadData.SyncRead(src, 1, ref serverHandles, out outValues, out Errors, out qualities, out timeStamps);
+                return true;
+            }
+            catch (Exception err)
+            {
+                outValues = null;
+                return false;
+            }
         }
 
         public bool SyncWriteTagValue(string tag, string writeStr)
@@ -302,9 +321,15 @@ namespace OPCClient
             Array serverHandles = (Array)temp_;
             object[] valueTemp = new object[2] { "", writeStr };
             Array values = (Array)valueTemp;
-            KepGroupWriteData.SyncWrite(1, ref serverHandles, ref values, out Errors);
-            return true;
+            try
+            {
+                KepGroupWriteData.SyncWrite(1, ref serverHandles, ref values, out Errors);
+                return true;
+            }
+            catch (Exception err)
+            {
+                return false;
+            }
         }
-
     }
 }

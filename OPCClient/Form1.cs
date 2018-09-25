@@ -17,7 +17,7 @@ namespace OPCClient
         }
 
         object servers;
-        OPCClient myOPCClient = new OPCClient();
+        OPCClientClass myOPCClient = new OPCClientClass();
         private void btSearch_Click(object sender, EventArgs e)
         {
             if (myOPCClient.SearchOPCSevers(ref servers))
@@ -47,7 +47,7 @@ namespace OPCClient
             {
                 toolStripStatusLabel1.Text = "已连接到： " + cmbServers.Text;
                 string[] tags = new string[tagNum];
-                myOPCClient.getTags(tags);
+                myOPCClient.GetTags(tags);
                 listBox1.Items.Clear();
                 foreach (string tag in tags)
                 {
@@ -81,6 +81,7 @@ namespace OPCClient
         private void btExit_Click(object sender, EventArgs e)
         {
             myOPCClient.DisconnectToServer();
+            toolStripStatusLabel1.Text = "已断开连接";
         }
     }
 }
