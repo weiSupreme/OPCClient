@@ -35,7 +35,7 @@ namespace OPCClient
                 toolStripStatusLabel1.Text = "没有搜索到任何OPC 服务器";
             }
         }
-        private void TagDataChange(string str, string tag)
+        private void TagDataChange(string tag, string str)
         {
             tbReadValue.Text = tag + ": " + str;
         }
@@ -66,12 +66,16 @@ namespace OPCClient
         {
             //tbReadValue.Text = "正在读取";
             //myOPCClient.BeginUpdate(listBox1.SelectedItem.ToString());
-            myOPCClient.AsyncReadTagValue(listBox1.SelectedItem.ToString());
+            //myOPCClient.AsyncReadTagValue(listBox1.SelectedItem.ToString());
+            Array readValues;
+            myOPCClient.SyncReadTagValue(listBox1.SelectedItem.ToString(), out readValues);
+            tbReadValue.Text = listBox1.SelectedItem.ToString() + ": " + readValues.GetValue(1).ToString();
         }
 
         private void btWrite_Click(object sender, EventArgs e)
         {
-            myOPCClient.AsyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
+            //myOPCClient.AsyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
+            myOPCClient.SyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
         }
 
         private void btExit_Click(object sender, EventArgs e)

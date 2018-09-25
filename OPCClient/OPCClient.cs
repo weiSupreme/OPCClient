@@ -39,7 +39,7 @@ namespace OPCClient
 
         public OPCClient() { }
 
-        public delegate void TagDataChange(string str, string tag);
+        public delegate void TagDataChange(string tag, string str);
         public TagDataChange _TagDataChange;
         public void SetTagDataUpdateFunc(TagDataChange tdc)
         {
@@ -78,6 +78,7 @@ namespace OPCClient
                 if ((turn.ToString().IndexOf(cTagName)) > -1)
                 {
                     tagList[idx]=turn.ToString();
+                    BeginUpdate(turn.ToString());
                     ++idx;
                 }
 
@@ -96,7 +97,7 @@ namespace OPCClient
         /// <summary>
         /// 建立连接按钮
         /// </summary>
-        public bool ConnectToServer(string serverName, ref int tagNum, string commonTagName="Tag")
+        public bool ConnectToServer(string serverName, ref int tagNum, string commonTagName="Tag", bool initAllTagsFlag=true)
         {
 
             try
@@ -121,13 +122,14 @@ namespace OPCClient
 
                 oPCBrowser = KepServer.CreateBrowser();
 
-                tagCounts = RecurBrowse(oPCBrowser, commonTagName);
-                tagNum = tagCounts;
-
-                KepGroupDataChange.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);
                 KepItems = KepGroupDataChange.OPCItems;
                 KepItemsWrite = KepGroupWriteData.OPCItems;
                 KepItemsRead = KepGroupReadData.OPCItems;
+
+                tagCounts = RecurBrowse(oPCBrowser, commonTagName);
+                tagNum = tagCounts;
+                if(initAllTagsFlag)
+                    KepGroupDataChange.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);
                 KepGroupReadData.AsyncReadComplete += new DIOPCGroupEvent_AsyncReadCompleteEventHandler(KepGroupReadData_AsyncReadComplete);
                 return true;
             }
@@ -158,12 +160,16 @@ namespace OPCClient
         /// <param name="NumItems">项个数</param>
         /// <param name="ClientHandles">项客户端句柄</param>
         /// <param name="ItemValues">TAG值</param>
+        private bool firstFlag = true;
         private void KepGroupDataChange_DataChange(int TransactionID, int NumItems, ref Array ClientHandles, ref Array ItemValues, ref Array Qualities, ref Array TimeStamps)
         {
-            for (int i = 1; i <= NumItems; i++)
-            {
-                _TagDataChange(ItemValues.GetValue(i).ToString(), tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1]);
-            }
+            if (firstFlag)
+                firstFlag = false;
+            else
+                for (int i = 1; i <= NumItems; i++)
+                {
+                    _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i).ToString());
+                }
         }
 
         private string[] itemList = new string[50];
@@ -192,7 +198,7 @@ namespace OPCClient
         {
             for (int i = 1; i <= NumItems; i++)
             {
-                _TagDataChange(ItemValues.GetValue(i).ToString(), tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1]);
+                _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i).ToString());
             }
         }
 
@@ -221,6 +227,7 @@ namespace OPCClient
             GC.Collect();
             return true;
         }
+
         public bool AsyncWriteTagValue(string tag, string writeStr)
         {
             Array Errors;
@@ -247,5 +254,57 @@ namespace OPCClient
             GC.Collect();
             return true;
         }
+
+        public bool SyncReadTagValue(string tag, out Array outValues)
+        {
+            Array Errors;
+            if (itmHandleClientReadData != 0)
+            {
+                OPCItem bItem = KepItemsRead.GetOPCItem(itmHandleServerReadData);
+                //注：OPC中以1为数组的基数
+                int[] temp = new int[2] { 0, bItem.ServerHandle };
+                Array serverHandle = (Array)temp;
+                //移除上一次选择的项
+                KepItemsRead.Remove(KepItemsRead.Count, ref serverHandle, out Errors);
+            }
+            itmHandleClientReadData = Array.IndexOf(tagList, tag) + 1;
+            KepItemRead = KepItemsRead.AddItem(tag, itmHandleClientReadData);
+            itmHandleServerReadData = KepItemRead.ServerHandle;
+
+            OPCItem bItem_ = KepItemsRead.GetOPCItem(itmHandleServerReadData);
+            int[] temp_ = new int[2] { 0, bItem_.ServerHandle };
+            Array serverHandles = (Array)temp_;
+
+            short src = (short)OPCDataSource.OPCDevice;
+            object qualities, timeStamps;
+            KepGroupReadData.SyncRead(src, 1, ref serverHandles, out outValues, out Errors, out qualities, out timeStamps);
+            return true;
+        }
+
+        public bool SyncWriteTagValue(string tag, string writeStr)
+        {
+            Array Errors;
+            if (itmHandleClientWriteData != 0)
+            {
+                OPCItem bItem = KepItemsWrite.GetOPCItem(itmHandleServerWriteData);
+                //注：OPC中以1为数组的基数
+                int[] temp = new int[2] { 0, bItem.ServerHandle };
+                Array serverHandle = (Array)temp;
+                //移除上一次选择的项
+                KepItemsWrite.Remove(KepItemsWrite.Count, ref serverHandle, out Errors);
+            }
+            itmHandleClientWriteData = Array.IndexOf(tagList, tag) + 1;
+            KepItemWrite = KepItemsWrite.AddItem(tag, itmHandleClientWriteData);
+            itmHandleServerWriteData = KepItemWrite.ServerHandle;
+
+            OPCItem bItem_ = KepItemsWrite.GetOPCItem(itmHandleServerWriteData);
+            int[] temp_ = new int[2] { 0, bItem_.ServerHandle };
+            Array serverHandles = (Array)temp_;
+            object[] valueTemp = new object[2] { "", writeStr };
+            Array values = (Array)valueTemp;
+            KepGroupWriteData.SyncWrite(1, ref serverHandles, ref values, out Errors);
+            return true;
+        }
+
     }
 }
