@@ -1,0 +1,6 @@
+D:\github\OPCClient\OPCClientDLL\bin\Debug\OPCClientDLL.dll
+D:\github\OPCClient\OPCClientDLL\bin\Debug\OPCClientDLL.pdb
+D:\github\OPCClient\OPCClientDLL\obj\Debug\Interop.OPCAutomation.dll
+D:\github\OPCClient\OPCClientDLL\obj\Debug\OPCClientDLL.csproj.ResolveComReference.cache
+D:\github\OPCClient\OPCClientDLL\obj\Debug\OPCClientDLL.dll
+D:\github\OPCClient\OPCClientDLL\obj\Debug\OPCClientDLL.pdb
