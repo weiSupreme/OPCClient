@@ -112,6 +112,7 @@ namespace OPCClient
             try
             {
                 KepServer.Connect(serverName);
+                //string str = KepServer.ServerName;
                 KepGroups = KepServer.OPCGroups;
                 KepServer.OPCGroups.DefaultGroupIsActive = true;
                 KepServer.OPCGroups.DefaultGroupDeadband = 0;
