@@ -24,7 +24,7 @@ namespace OPCClient
         OPCItems KepItems;
         OPCItem KepItem;
 
-        public int updateTime = 250;
+        public int updateTime = 300;
         public bool isConnected2Server = false;
         public static int tagCountsMax = 50;
 
@@ -67,7 +67,7 @@ namespace OPCClient
         /// <summary>
         /// 列出OPC服务器中所有节点
         /// </summary>
-        private int RecurBrowse(OPCBrowser oPCBrowser, string cTagName, bool initFlag)
+        private int RecurBrowse(OPCBrowser oPCBrowser, bool initFlag)
         {
             //展开分支
             oPCBrowser.ShowBranches();
@@ -77,7 +77,7 @@ namespace OPCClient
             foreach (object turn in oPCBrowser)
             {
                 //if (string.Compare(turn.ToString(),"Tags")==0)//
-                if ((turn.ToString().IndexOf(cTagName)) > -1)
+                //if ((turn.ToString().IndexOf(cTagName)) > -1)
                 {
                     tagList[idx]=turn.ToString();
                     if(initFlag)
@@ -114,7 +114,7 @@ namespace OPCClient
         /// <summary>
         /// 建立连接按钮
         /// </summary>
-        public string ConnectToServer(string serverName, string commonTagName="Tag", bool initAllTagsFlag=true)
+        public string ConnectToServer(string serverName, bool initAllTagsFlag=true)
         {
             try
             {
@@ -142,7 +142,7 @@ namespace OPCClient
                 KepItemsRead = KepGroupReadData.OPCItems;
 
                 oPCBrowser = KepServer.CreateBrowser();
-                tagCounts = RecurBrowse(oPCBrowser, commonTagName, initAllTagsFlag);
+                tagCounts = RecurBrowse(oPCBrowser, initAllTagsFlag);
 
                 if(initAllTagsFlag)
                     KepGroupDataChange.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);

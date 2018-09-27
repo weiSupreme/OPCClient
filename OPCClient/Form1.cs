@@ -77,8 +77,12 @@ namespace OPCClient
 
         private void btWrite_Click(object sender, EventArgs e)
         {
-            myOPCClient.AsyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
-            //myOPCClient.SyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
+            DateTime beforDT = System.DateTime.Now;
+            //myOPCClient.AsyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
+            myOPCClient.SyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
+            DateTime afterDT = System.DateTime.Now;
+            TimeSpan ts = afterDT.Subtract(beforDT);
+            //MessageBox.Show(ts.TotalMilliseconds.ToString());
         }
 
         private void btExit_Click(object sender, EventArgs e)
