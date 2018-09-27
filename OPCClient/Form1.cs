@@ -42,6 +42,16 @@ namespace OPCClient
             //tbReadValue.Text += "品质: " + quality.ToString();
         }
 
+        private void AsyncWriteComplete(string tag, Int64 error)
+        {
+            if (0 == error)
+                toolStripStatusLabel1.Text = "写入数据成功";
+            else
+            {
+                toolStripStatusLabel1.Text = "写入数据失败";
+            }
+        }
+
         int tagNum = 0;
         private void btConnect_Click(object sender, EventArgs e)
         {
@@ -59,6 +69,7 @@ namespace OPCClient
                 }
                 //listBox1.SelectedIndex = 0;
                 myOPCClient.SetTagDataUpdateFunc(TagDataChange);
+                myOPCClient.SetAsyncWriteCompleteFunc(AsyncWriteComplete);
             }
             else
             {
@@ -78,11 +89,11 @@ namespace OPCClient
 
         private void btWrite_Click(object sender, EventArgs e)
         {
-            DateTime beforDT = System.DateTime.Now;
-            //myOPCClient.AsyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
-            myOPCClient.SyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
-            DateTime afterDT = System.DateTime.Now;
-            TimeSpan ts = afterDT.Subtract(beforDT);
+            //DateTime beforDT = System.DateTime.Now;
+            myOPCClient.AsyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
+            //myOPCClient.SyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
+            //DateTime afterDT = System.DateTime.Now;
+            //TimeSpan ts = afterDT.Subtract(beforDT);
             //MessageBox.Show(ts.TotalMilliseconds.ToString());
         }
 

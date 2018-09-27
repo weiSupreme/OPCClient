@@ -49,6 +49,13 @@ namespace OPCClient
             this._TagDataChange = tdc;
         }
 
+        public delegate void AsyncWriteComplete(string tag, Int64 error);
+        private AsyncWriteComplete _AsyncWriteComplete;
+        public void SetAsyncWriteCompleteFunc(AsyncWriteComplete awc)
+        {
+            this._AsyncWriteComplete = awc;
+        }
+
 
         public string SearchOPCSevers(ref object serverList)
         {
@@ -147,6 +154,7 @@ namespace OPCClient
                 if(initAllTagsFlag)
                     KepGroupDataChange.DataChange += new DIOPCGroupEvent_DataChangeEventHandler(KepGroupDataChange_DataChange);
                 KepGroupReadData.AsyncReadComplete += new DIOPCGroupEvent_AsyncReadCompleteEventHandler(KepGroupReadData_AsyncReadComplete);
+                KepGroupWriteData.AsyncWriteComplete+=new DIOPCGroupEvent_AsyncWriteCompleteEventHandler(KepGroupWriteData_AsyncWriteComplete);
                 isConnected2Server = true;
                 return "OK";
             }
@@ -252,6 +260,14 @@ namespace OPCClient
             catch (Exception err)
             {
                 return err.Message;
+            }
+        }
+
+        private void KepGroupWriteData_AsyncWriteComplete(int TransactionID, int NumItems, ref Array ClientHandles, ref Array Errors)
+        {
+            for (int i = 1; i <= NumItems; i++)
+            {
+                _AsyncWriteComplete(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], Convert.ToInt64(Errors.GetValue(i)));
             }
         }
 
