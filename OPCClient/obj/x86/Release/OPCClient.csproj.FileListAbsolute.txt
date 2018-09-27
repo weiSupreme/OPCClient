@@ -1,0 +1,9 @@
+D:\github\OPCClient\OPCClient\obj\x86\Release\Interop.OPCAutomation.dll
+D:\github\OPCClient\OPCClient\obj\x86\Release\OPCClient.csproj.ResolveComReference.cache
+D:\github\OPCClient\OPCClient\bin\Release\OPCClient.exe
+D:\github\OPCClient\OPCClient\bin\Release\OPCClient.pdb
+D:\github\OPCClient\OPCClient\obj\x86\Release\OPCClient.Form1.resources
+D:\github\OPCClient\OPCClient\obj\x86\Release\OPCClient.Properties.Resources.resources
+D:\github\OPCClient\OPCClient\obj\x86\Release\OPCClient.csproj.GenerateResource.Cache
+D:\github\OPCClient\OPCClient\obj\x86\Release\OPCClient.exe
+D:\github\OPCClient\OPCClient\obj\x86\Release\OPCClient.pdb
