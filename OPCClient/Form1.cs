@@ -36,9 +36,10 @@ namespace OPCClient
                 toolStripStatusLabel1.Text = outErrors;
             }
         }
-        private void TagDataChange(string tag, string str)
+        private void TagDataChange(string tag, object itemValue, object quality, object timestamp)
         {
-            tbReadValue.Text = tag + ": " + str;
+            tbReadValue.Text = tag + ": " + itemValue.ToString() + "\r\n";
+            //tbReadValue.Text += "品质: " + quality.ToString();
         }
 
         int tagNum = 0;

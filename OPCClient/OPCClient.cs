@@ -42,7 +42,7 @@ namespace OPCClient
 
         public OPCClientClass() { }
 
-        public delegate void TagDataChange(string tag, string str);
+        public delegate void TagDataChange(string tag, object itemValue, object quality, object timestamp);
         private TagDataChange _TagDataChange;
         public void SetTagDataUpdateFunc(TagDataChange tdc)
         {
@@ -114,7 +114,7 @@ namespace OPCClient
         /// <summary>
         /// 建立连接按钮
         /// </summary>
-        public string ConnectToServer(string serverName, bool initAllTagsFlag=true)
+        public string ConnectToServer(string serverName, bool initAllTagsFlag=false)
         {
             try
             {
@@ -184,7 +184,7 @@ namespace OPCClient
             if (!initializeFlag)
                 for (int i = 1; i <= NumItems; i++)
                 {
-                    _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i).ToString());
+                    _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i), Qualities.GetValue(i), TimeStamps.GetValue(i));
                 }
             else
             {
@@ -218,7 +218,7 @@ namespace OPCClient
         {
             for (int i = 1; i <= NumItems; i++)
             {
-                _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i).ToString());
+                _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i), Qualities.GetValue(i), TimeStamps.GetValue(i));
             }
         }
 
@@ -289,7 +289,7 @@ namespace OPCClient
             }
         }
 
-        public string SyncReadTagValue(string tag, out Array outValues)
+        public string SyncReadTagValue(string tag, out Array outValues, out object qualities, out object timeStamps)
         {
             try{
                 Array Errors;
@@ -311,13 +311,14 @@ namespace OPCClient
                 Array serverHandles = (Array)temp_;
 
                 short src = (short)OPCDataSource.OPCDevice;
-                object qualities, timeStamps;
                 KepGroupReadData.SyncRead(src, 1, ref serverHandles, out outValues, out Errors, out qualities, out timeStamps);
                 return "OK";
             }
             catch (Exception err)
             {
                 outValues = null;
+                qualities = null;
+                timeStamps = null;
                 return err.Message;
             }
         }
