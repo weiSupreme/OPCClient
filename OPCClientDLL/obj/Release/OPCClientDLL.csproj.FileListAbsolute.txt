@@ -1,0 +1,4 @@
+D:\github\OPCClient\OPCClientDLL\bin\Release\OPCClientDLL.dll
+D:\github\OPCClient\OPCClientDLL\bin\Release\OPCClientDLL.pdb
+D:\github\OPCClient\OPCClientDLL\obj\Release\OPCClientDLL.dll
+D:\github\OPCClient\OPCClientDLL\obj\Release\OPCClientDLL.pdb

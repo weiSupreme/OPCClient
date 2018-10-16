@@ -24,12 +24,12 @@ namespace OPCClient
         OPCItems KepItems;
         OPCItem KepItem;
 
-        public int updateTime = 300;
+        public int updateTime = 1000;
         public bool isConnected2Server = false;
         public static int tagCountsMax = 50;
 
-        string[] tagList = new string[tagCountsMax];
-        int tagCounts = 0;
+        public string[] tagList = new string[tagCountsMax];
+        public int tagCounts = 0;
 
         int itmHandleClientDataChange = 0;
         int itmHandleServerDataChange = 0;
@@ -42,11 +42,11 @@ namespace OPCClient
 
         public OPCClientClass() { }
 
-        public delegate void TagDataChange(string tag, object itemValue, object quality, object timestamp);
-        private TagDataChange _TagDataChange;
-        public void SetTagDataUpdateFunc(TagDataChange tdc)
+        public delegate void SubscribeDataChange(string tag, object itemValue, object quality, object timestamp);
+        private SubscribeDataChange _SubscribeDataChange;
+        public void SetSubscribeDataUpdateFunc(SubscribeDataChange sdc)
         {
-            this._TagDataChange = tdc;
+            this._SubscribeDataChange = sdc;
         }
 
         public delegate void AsyncWriteComplete(string tag, Int64 error);
@@ -54,6 +54,13 @@ namespace OPCClient
         public void SetAsyncWriteCompleteFunc(AsyncWriteComplete awc)
         {
             this._AsyncWriteComplete = awc;
+        }
+
+        public delegate void AsyncReadComplete(string tag, object itemValue, object quality, object timestamp);
+        private AsyncReadComplete _AsyncReadComplete;
+        public void SetAsyncReadCompleteFunc(AsyncReadComplete tdc)
+        {
+            this._AsyncReadComplete = tdc;
         }
 
 
@@ -121,7 +128,7 @@ namespace OPCClient
         /// <summary>
         /// 建立连接按钮
         /// </summary>
-        public string ConnectToServer(string serverName, bool initAllTagsFlag=false)
+        public string ConnectToServer(string serverName="OMRON.OPC", bool initAllTagsFlag=false)
         {
             try
             {
@@ -192,7 +199,7 @@ namespace OPCClient
             if (!initializeFlag)
                 for (int i = 1; i <= NumItems; i++)
                 {
-                    _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i), Qualities.GetValue(i), TimeStamps.GetValue(i));
+                    _SubscribeDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i), Qualities.GetValue(i), TimeStamps.GetValue(i));
                 }
             else
             {
@@ -226,7 +233,7 @@ namespace OPCClient
         {
             for (int i = 1; i <= NumItems; i++)
             {
-                _TagDataChange(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i), Qualities.GetValue(i), TimeStamps.GetValue(i));
+                _AsyncReadComplete(tagList[Convert.ToInt16(ClientHandles.GetValue(i).ToString()) - 1], ItemValues.GetValue(i), Qualities.GetValue(i), TimeStamps.GetValue(i));
             }
         }
 

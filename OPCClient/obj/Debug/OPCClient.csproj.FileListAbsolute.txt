@@ -1,0 +1,11 @@
+D:\github\OPCClient\OPCClient\bin\Debug\OPCClient.exe
+D:\github\OPCClient\OPCClient\bin\Debug\OPCClient.pdb
+D:\github\OPCClient\OPCClient\obj\Debug\OPCClient.Form1.resources
+D:\github\OPCClient\OPCClient\obj\Debug\OPCClient.Properties.Resources.resources
+D:\github\OPCClient\OPCClient\obj\Debug\OPCClient.csproj.GenerateResource.Cache
+D:\github\OPCClient\OPCClient\obj\Debug\OPCClient.exe
+D:\github\OPCClient\OPCClient\obj\Debug\OPCClient.pdb
+D:\github\OPCClient\OPCClient\bin\Debug\OPCClient.exe.config
+D:\github\OPCClient\OPCClient\obj\Debug\OPCClient.csprojResolveAssemblyReference.cache
+D:\github\OPCClient\OPCClient\obj\Debug\Interop.OPCAutomation.dll
+D:\github\OPCClient\OPCClient\obj\Debug\OPCClient.csproj.ResolveComReference.cache

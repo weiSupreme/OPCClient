@@ -16,6 +16,7 @@ namespace OPCClient
             InitializeComponent();
         }
 
+        
         object servers;
         OPCClientClass myOPCClient = new OPCClientClass();
         private void btSearch_Click(object sender, EventArgs e)
@@ -55,7 +56,7 @@ namespace OPCClient
         int tagNum = 0;
         private void btConnect_Click(object sender, EventArgs e)
         {
-            string outErrors = myOPCClient.ConnectToServer(cmbServers.Text);
+            string outErrors = myOPCClient.ConnectToServer();
             if ("OK" == outErrors)
             {
                 toolStripStatusLabel1.Text = "已连接到： " + cmbServers.Text;
@@ -68,8 +69,15 @@ namespace OPCClient
                     listBox1.Items.Add(tag);
                 }
                 //listBox1.SelectedIndex = 0;
-                myOPCClient.SetTagDataUpdateFunc(TagDataChange);
+                myOPCClient.SetSubscribeDataUpdateFunc(TagDataChange);
                 myOPCClient.SetAsyncWriteCompleteFunc(AsyncWriteComplete);
+                string[] subscribeTagList = new string[5];
+                subscribeTagList[0] = "Device.TagD2";
+                subscribeTagList[1] = "Device.TagD6";
+                subscribeTagList[2] = "Device.TagD10";
+                subscribeTagList[3] = "Device.TagD12";
+                subscribeTagList[4] = "Device.TagD14";
+                myOPCClient.InitSomeTags(subscribeTagList, 5);
             }
             else
             {
@@ -90,7 +98,8 @@ namespace OPCClient
         private void btWrite_Click(object sender, EventArgs e)
         {
             //DateTime beforDT = System.DateTime.Now;
-            myOPCClient.AsyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
+            if("" != tbWriteTag.Text)
+                myOPCClient.AsyncWriteTagValue("Device." + tbWriteTag.Text, tbWriteValue.Text);
             //myOPCClient.SyncWriteTagValue(listBox1.SelectedItem.ToString(), tbWriteValue.Text);
             //DateTime afterDT = System.DateTime.Now;
             //TimeSpan ts = afterDT.Subtract(beforDT);
@@ -101,6 +110,12 @@ namespace OPCClient
         {
             myOPCClient.DisconnectToServer();
             toolStripStatusLabel1.Text = "已断开连接";
+        }
+
+        private void btRead_Click(object sender, EventArgs e)
+        {
+            if("" != tbReadTag.Text)
+                myOPCClient.AsyncReadTagValue("Device."+tbReadTag.Text);
         }
     }
 }

@@ -41,6 +41,11 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.btWrite = new System.Windows.Forms.Button();
             this.tbWriteValue = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tbReadTag = new System.Windows.Forms.TextBox();
+            this.btRead = new System.Windows.Forms.Button();
+            this.tbWriteTag = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -102,7 +107,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 229);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 272);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(413, 22);
             this.statusStrip1.TabIndex = 5;
@@ -120,20 +125,23 @@
             this.listBox1.ItemHeight = 12;
             this.listBox1.Location = new System.Drawing.Point(218, 12);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(184, 208);
+            this.listBox1.Size = new System.Drawing.Size(184, 256);
             this.listBox1.TabIndex = 6;
             this.listBox1.Tag = "";
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btRead);
+            this.groupBox2.Controls.Add(this.tbReadTag);
+            this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.tbReadValue);
             this.groupBox2.Location = new System.Drawing.Point(12, 98);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(200, 70);
+            this.groupBox2.Size = new System.Drawing.Size(200, 95);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "当前值";
+            this.groupBox2.Text = "读取";
             // 
             // tbReadValue
             // 
@@ -145,18 +153,20 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.label2);
+            this.groupBox3.Controls.Add(this.tbWriteTag);
             this.groupBox3.Controls.Add(this.btWrite);
             this.groupBox3.Controls.Add(this.tbWriteValue);
-            this.groupBox3.Location = new System.Drawing.Point(12, 174);
+            this.groupBox3.Location = new System.Drawing.Point(12, 199);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(200, 52);
+            this.groupBox3.Size = new System.Drawing.Size(200, 73);
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "写入值";
+            this.groupBox3.Text = "写入";
             // 
             // btWrite
             // 
-            this.btWrite.Location = new System.Drawing.Point(134, 21);
+            this.btWrite.Location = new System.Drawing.Point(134, 43);
             this.btWrite.Name = "btWrite";
             this.btWrite.Size = new System.Drawing.Size(60, 23);
             this.btWrite.TabIndex = 1;
@@ -166,24 +176,67 @@
             // 
             // tbWriteValue
             // 
-            this.tbWriteValue.Location = new System.Drawing.Point(7, 21);
+            this.tbWriteValue.Location = new System.Drawing.Point(7, 43);
             this.tbWriteValue.Multiline = true;
             this.tbWriteValue.Name = "tbWriteValue";
             this.tbWriteValue.Size = new System.Drawing.Size(121, 23);
             this.tbWriteValue.TabIndex = 0;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(107, 71);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(23, 12);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Tag";
+            // 
+            // tbReadTag
+            // 
+            this.tbReadTag.Location = new System.Drawing.Point(7, 68);
+            this.tbReadTag.Name = "tbReadTag";
+            this.tbReadTag.Size = new System.Drawing.Size(94, 21);
+            this.tbReadTag.TabIndex = 2;
+            // 
+            // btRead
+            // 
+            this.btRead.Location = new System.Drawing.Point(136, 66);
+            this.btRead.Name = "btRead";
+            this.btRead.Size = new System.Drawing.Size(58, 23);
+            this.btRead.TabIndex = 5;
+            this.btRead.Text = "读取";
+            this.btRead.UseVisualStyleBackColor = true;
+            this.btRead.Click += new System.EventHandler(this.btRead_Click);
+            // 
+            // tbWriteTag
+            // 
+            this.tbWriteTag.Location = new System.Drawing.Point(7, 16);
+            this.tbWriteTag.Name = "tbWriteTag";
+            this.tbWriteTag.Size = new System.Drawing.Size(121, 21);
+            this.tbWriteTag.TabIndex = 2;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(134, 19);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(23, 12);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Tag";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(413, 251);
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.ClientSize = new System.Drawing.Size(413, 294);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "OPCClientDemo";
             this.groupBox1.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
@@ -211,6 +264,11 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button btWrite;
         private System.Windows.Forms.TextBox tbWriteValue;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox tbReadTag;
+        private System.Windows.Forms.Button btRead;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox tbWriteTag;
     }
 }
 

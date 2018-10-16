@@ -1,0 +1,2 @@
+D:\github\OPCClient\OPCClient\obj\x64\Release\Interop.OPCAutomation.dll
+D:\github\OPCClient\OPCClient\obj\x64\Release\OPCClient.csproj.ResolveComReference.cache
